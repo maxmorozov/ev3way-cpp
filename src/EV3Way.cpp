@@ -28,6 +28,9 @@
 
 #include "EV3Way.h"
 
+#include <pthread.h>
+#include <sched.h>
+
 using namespace std;
 using namespace ev3lib::hardware;
 
@@ -39,6 +42,15 @@ namespace ev3way {
 
 	void EV3Way::addTask(Task&& task) {
 		m_threads.push_back(thread(task));
+	}
+
+	void EV3Way::addRealTimeTask(Task&& task) {
+		m_threads.push_back(thread(task));
+
+		int policy = SCHED_RR;
+		sched_param    param;
+		param.sched_priority = sched_get_priority_min(policy);
+		pthread_setschedparam(m_threads.back().native_handle(), policy, &param);
 	}
 
 	void EV3Way::wait() {
@@ -70,10 +82,9 @@ namespace ev3way {
 
 			EV3Way robot;
 
-			robot.addTask(Task(chrono::milliseconds((int)Constants::CONTROLLER_TIME), [&]{controller();}, stopChecker));
+			robot.addRealTimeTask(Task(chrono::milliseconds((int)Constants::CONTROLLER_TIME), [&]{ controller(); }, stopChecker));
 			robot.addTask(Task(chrono::milliseconds(100), batteryTask, stopChecker));
 			robot.addTask(Task(chrono::milliseconds(50), [&]{ if(escapeButton.isPressed()) stop = true; }, stopChecker));
-
 
 			robot.wait();
 
