@@ -31,6 +31,8 @@
 #include <pthread.h>
 #include <sched.h>
 
+#include "utils/DeviationCalc.h"
+
 using namespace std;
 using namespace ev3lib::hardware;
 
@@ -47,10 +49,11 @@ namespace ev3way {
 	void EV3Way::addRealTimeTask(Task&& task) {
 		m_threads.push_back(thread(task));
 
+		int policy = SCHED_FIFO;
 		sched_param    param;
-		param.sched_priority = sched_get_priority_min(SCHED_RR);
+		param.sched_priority = sched_get_priority_min(policy);
 		cout<<"Priority: "<<param.sched_priority<<endl;
-		pthread_setschedparam(m_threads.back().native_handle(), SCHED_RR, &param);
+		pthread_setschedparam(m_threads.back().native_handle(), policy, &param);
 	}
 
 	void EV3Way::wait() {
