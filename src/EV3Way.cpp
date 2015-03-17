@@ -47,7 +47,7 @@ namespace ev3way {
 	void EV3Way::addRealTimeTask(Task&& task) {
 		m_threads.push_back(thread(task));
 
-		int policy = SCHED_RR;
+		int policy = SCHED_FIFO;
 		sched_param    param;
 		param.sched_priority = sched_get_priority_min(policy);
 		pthread_setschedparam(m_threads.back().native_handle(), policy, &param);
