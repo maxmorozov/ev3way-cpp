@@ -28,6 +28,7 @@ namespace ev3way {
 		EV3Way();
 
 		void addTask(Task&& task);
+		void addRealTimeTask(Task&& task);
 
 		void start();
 

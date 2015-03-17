@@ -28,6 +28,9 @@
 
 #include "EV3Way.h"
 
+#include <pthread.h>
+#include <sched.h>
+
 using namespace std;
 using namespace ev3lib::hardware;
 
@@ -39,6 +42,15 @@ namespace ev3way {
 
 	void EV3Way::addTask(Task&& task) {
 		m_threads.push_back(thread(task));
+	}
+
+	void EV3Way::addRealTimeTask(Task&& task) {
+		m_threads.push_back(thread(task));
+
+		sched_param    param;
+		param.sched_priority = sched_get_priority_min(SCHED_RR);
+		cout<<"Priority: "<<param.sched_priority<<endl;
+		pthread_setschedparam(m_threads.back().native_handle(), SCHED_RR, &param);
 	}
 
 	void EV3Way::wait() {
@@ -70,9 +82,30 @@ namespace ev3way {
 
 			EV3Way robot;
 
-			robot.addTask(Task(chrono::milliseconds((int)Constants::CONTROLLER_TIME), [&]{controller();}, stopChecker));
+			DeviationCalc calc;
+		    clock_type::time_point time1 = clock_type::now();
+		    int first_call = true;
+
+			robot.addRealTimeTask(Task(chrono::milliseconds((int)Constants::CONTROLLER_TIME), [&]{
+				if (first_call) {
+					time1 = clock_type::now();
+					first_call = false;
+				} else {
+				    clock_type::time_point time2 = clock_type::now();
+
+				    chrono::nanoseconds interval = time2-time1;
+			        float milliseconds = interval.count() / 1e6f;
+			        calc.add(milliseconds);
+			        time1 = time2;
+				}
+
+				controller();
+			}, stopChecker));
 			robot.addTask(Task(chrono::milliseconds(100), batteryTask, stopChecker));
 			robot.addTask(Task(chrono::milliseconds(50), [&]{ if(escapeButton.isPressed()) stop = true; }, stopChecker));
+			robot.addTask(Task(chrono::seconds(5), [&]{
+				cout<<"Average: "<<calc.getAverage()<<", Deviation: "<<calc.getDeviation()<<endl;
+			}, stopChecker));
 
 
 			robot.wait();
