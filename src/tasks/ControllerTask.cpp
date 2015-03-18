@@ -89,7 +89,9 @@ void ControllerTask::operator()() {
                     estimator->getAngle(),
                     leftMotor.getTachoCount(),
                     rightMotor.getTachoCount(),
-                    shared->getBatteryVoltage());
+                    shared->getBatteryVoltage(),
+                    gyroValue - gyroOffset,
+                    0);
 
             //Check if the robot has fallen
             if (!controller.isOk()) {

@@ -32,6 +32,7 @@
 #include <sched.h>
 
 #include "utils/DeviationCalc.h"
+#include "utils/Log.h"
 
 using namespace std;
 using namespace ev3lib::hardware;
@@ -112,6 +113,8 @@ namespace ev3way {
 
 
 			robot.wait();
+
+			Log::print();
 
 		} catch (const boost::exception& e) {
 			cout<<"Error: "<<boost::diagnostic_information(e)<<endl;

@@ -67,7 +67,7 @@ public:
       * @param battery_voltage the battery voltage in milli-volts (mV)
       * @return encoded power for left and right motors. Low byte - left motor, high byte - right motor
       */
-     short control(int cmd_forward, int cmd_turn, float psidot, float psi, int left_motor_pos, int right_motor_pos, float battery_voltage);
+     short control(int cmd_forward, int cmd_turn, float psidot, float psi, int left_motor_pos, int right_motor_pos, float battery_voltage, float gyro, float angle);
 
      /**
       * Check if robot has fallen by detecting that motor power is being limited
