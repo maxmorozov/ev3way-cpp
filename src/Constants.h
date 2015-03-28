@@ -15,9 +15,10 @@ namespace ev3way {
 class Constants {
 public:
     // Low Path Filter Coefficients
-    static constexpr float BATTERY_FILTER = 0.8f;       // average battery value
+    static constexpr float BATTERY_FILTER = 0.8f;               // average battery value
     static constexpr float GYRO_CALIBRATION_FILTER = 0.8f;	    // calibrate gyro offset
     static constexpr float GYRO_COMPENSATION_FILTER = 0.999f;	// compensate gyro drift
+    static constexpr float GYRO_FILTER = 0.7f;	                // smooth gyro readings
 
     static const int CONTROLLER_TIME = 8; //8 mc
     /**

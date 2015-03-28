@@ -36,7 +36,8 @@ float LowPassFilterEstimator::getAngle() const {
 void LowPassFilterEstimator::updateState(float gyroValue, float interval) {
     //Use low-pass filter to find average angular velocity
     gyroOffset = gyroOffset * Constants::GYRO_COMPENSATION_FILTER + (1 - Constants::GYRO_COMPENSATION_FILTER) * gyroValue;
-    angularVelocity = gyroValue - gyroOffset;
+    //Use low-pass filter to reduce gyro noise
+    angularVelocity = Constants::GYRO_FILTER * angularVelocity + (1 - Constants::GYRO_FILTER) * (gyroValue - gyroOffset);
 
     angle = nextAngle;
     nextAngle += (interval * angularVelocity);
